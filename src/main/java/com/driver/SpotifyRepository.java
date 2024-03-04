@@ -280,7 +280,10 @@ public class SpotifyRepository {
             artist.setLikes(artist.getLikes() + 1);
         }
 
-        // Step 7: Return the updated song
+        // Step 7: Increment the likes of the song
+        likedSong.setLikes(likedSong.getLikes() + 1);
+
+        // Step 8: Return the updated song
         return likedSong;
     }
 
