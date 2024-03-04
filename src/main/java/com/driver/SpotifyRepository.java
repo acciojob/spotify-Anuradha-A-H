@@ -181,17 +181,15 @@ public class SpotifyRepository {
                     break;
                 }
             }
-            if (!found) {
-                throw new Exception("Song with title '" + songTitle + "' does not exist");
-            }
+//            if (!found) {
+//                throw new Exception("Song with title '" + songTitle + "' does not exist");
+//            }
         }
         playlistSongMap.put(playlist, songsToAdd);
 
-        // Step 4: Associate the playlist with the user
+        // Step 4: Associate the playlist with the user as both creator and listener
         creatorPlaylistMap.put(user, playlist);
-        List<Playlist> userPlaylists = userPlaylistMap.getOrDefault(user, new ArrayList<>());
-        userPlaylists.add(playlist);
-        userPlaylistMap.put(user, userPlaylists);
+        userPlaylistMap.computeIfAbsent(user, k -> new ArrayList<>()).add(playlist);
         playlistListenerMap.put(playlist, Collections.singletonList(user));
 
         // Step 5: Return the created playlist
