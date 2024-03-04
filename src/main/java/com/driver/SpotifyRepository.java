@@ -116,6 +116,7 @@ public class SpotifyRepository {
     }
 
     public Playlist createPlaylistOnLength(String mobile, String title, int length) throws Exception {
+        // Step 1: Find the user based on mobile number
         User user = null;
         for (User u : users) {
             if (u.getMobile().equals(mobile)) {
@@ -126,20 +127,30 @@ public class SpotifyRepository {
         if (user == null) {
             throw new Exception("User does not exist");
         }
-        List<Song> match = new ArrayList<>();
-        for(Song s : songs)
-        {
-            if(s.getTitle().length() == length)
-                match.add(s);
-        }
+
+        // Step 2: Create a new playlist with the specified title
         Playlist playlist = new Playlist(title);
-        playlistSongMap.put(playlist, match);
 
+        // Step 3: Find songs with the given length and add them to the playlist
+        List<Song> songsToAdd = new ArrayList<>();
+        for (Song song : songs) {
+            if (song.getLength() == length) {
+                songsToAdd.add(song);
+            }
+        }
+        if (songsToAdd.isEmpty()) {
+            throw new Exception("No songs found with the given length");
+        }
+        playlistSongMap.put(playlist, songsToAdd);
 
-        creatorPlaylistMap.put(user,playlist);
-        List<Playlist> playlists = userPlaylistMap.getOrDefault(user, new ArrayList<>());
-        playlists.add(playlist);
-        userPlaylistMap.put(user, playlists);
+        // Step 4: Associate the playlist with the user
+        creatorPlaylistMap.put(user, playlist);
+        List<Playlist> userPlaylists = userPlaylistMap.getOrDefault(user, new ArrayList<>());
+        userPlaylists.add(playlist);
+        userPlaylistMap.put(user, userPlaylists);
+        playlistListenerMap.put(playlist, Collections.singletonList(user));
+
+        // Step 5: Return the created playlist
         return playlist;
     }
 
@@ -217,7 +228,7 @@ public class SpotifyRepository {
                 playlistListenerMap.put(foundPlaylist, listeners);
             }
         } else {
-            throw new Exception("Playlist with title '" + playlistTitle + "' does not exist");
+            throw new Exception("Playlist does not exist");
         }
 
         // Step 4: Return the found playlist
