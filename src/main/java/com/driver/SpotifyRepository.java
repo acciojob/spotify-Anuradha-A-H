@@ -144,6 +144,7 @@ public class SpotifyRepository {
     }
 
     public Playlist createPlaylistOnName(String mobile, String title, List<String> songTitles) throws Exception {
+        // Step 1: Find the user based on mobile number
         User user = null;
         for (User u : users) {
             if (u.getMobile().equals(mobile)) {
@@ -155,33 +156,34 @@ public class SpotifyRepository {
             throw new Exception("User does not exist");
         }
 
+        // Step 2: Create a new playlist with the specified title
         Playlist playlist = new Playlist(title);
+
+        // Step 3: Find songs based on provided song titles and add them to the playlist
         List<Song> songsToAdd = new ArrayList<>();
         for (String songTitle : songTitles) {
-            // Step 4: Find the song with the specified title
-            boolean songFound = false;
+            boolean found = false;
             for (Song song : songs) {
                 if (song.getTitle().equals(songTitle)) {
                     songsToAdd.add(song);
-                    songFound = true;
+                    found = true;
                     break;
                 }
             }
-            if (!songFound) {
+            if (!found) {
                 throw new Exception("Song with title '" + songTitle + "' does not exist");
             }
         }
-
-        // Step 5: Add the selected songs to the playlist
         playlistSongMap.put(playlist, songsToAdd);
 
-        // Step 6: Associate the playlist with the user
+        // Step 4: Associate the playlist with the user
         creatorPlaylistMap.put(user, playlist);
         List<Playlist> userPlaylists = userPlaylistMap.getOrDefault(user, new ArrayList<>());
         userPlaylists.add(playlist);
         userPlaylistMap.put(user, userPlaylists);
+        playlistListenerMap.put(playlist, Collections.singletonList(user));
 
-        // Step 7: Return the created playlist
+        // Step 5: Return the created playlist
         return playlist;
     }
 
